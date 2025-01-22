@@ -55,7 +55,7 @@ void setup()
   CAN.setMode(MCP_NORMAL);
 
   pinMode(sensorPin, INPUT);
-  //attachInterrupt(digitalPinToInterrupt(sensorPin), countPulse, FALLING); 
+  attachInterrupt(digitalPinToInterrupt(sensorPin), countPulse, FALLING); 
   attachInterrupt(digitalPinToInterrupt(sensorPin), countTime, FALLING); 
 }
 
