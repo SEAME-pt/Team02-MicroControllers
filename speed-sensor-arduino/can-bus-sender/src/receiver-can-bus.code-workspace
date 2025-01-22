@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "../../receiver-can-bus"
+		},
+		{
+			"name": "can-bus-sender",
+			"path": ".."
+		},
+		{
+			"path": "../../can-bus-receiver"
+		}
+	],
+	"settings": {}
+}
