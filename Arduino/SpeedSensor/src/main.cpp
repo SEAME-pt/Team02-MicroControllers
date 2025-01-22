@@ -98,5 +98,5 @@ void loop()
       Serial.print(", ");
     }
       Serial.println("");
-    CAN.sendMsgBuf(0x1, 0, 8, data);
+    CAN.sendMsgBuf(0x1, 0, 4, data);
 }
