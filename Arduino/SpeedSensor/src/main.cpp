@@ -15,7 +15,7 @@ unsigned long pulseCount = 0;
 unsigned long previousMillis = 0;
 const long interval = 500;
 
-float alpha = 0.1; // Smoothing factor (0 < alpha <= 1)
+float alpha = 0.9; // Smoothing factor (0 < alpha <= 1)
 float smoothedSpeed = 0;
 unsigned long prev_time = 0;
 unsigned long curr_time = 0;
@@ -34,7 +34,7 @@ void countTime() {
   prev_time = curr_time;
   if (pulseCount == 25)
   {
-      curr_time = micros();
+      curr_time = millis();
       time_passed = curr_time - prev_time;
       pulseCount = 0;
   }
@@ -56,7 +56,7 @@ void setup()
 
   pinMode(sensorPin, INPUT);
   attachInterrupt(digitalPinToInterrupt(sensorPin), countPulse, FALLING); 
-  attachInterrupt(digitalPinToInterrupt(sensorPin), countTime, FALLING); 
+  //attachInterrupt(digitalPinToInterrupt(sensorPin), countTime, FALLING); 
 }
 
 void loop()
