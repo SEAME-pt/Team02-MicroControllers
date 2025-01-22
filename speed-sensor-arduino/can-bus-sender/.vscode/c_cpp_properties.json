@@ -1,0 +1,56 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
+{
+    "configurations": [
+        {
+            "name": "PlatformIO",
+            "includePath": [
+                "/Users/ruipedropires/SEA:ME/Team02-Course/MicroControllers/speed-sensor-arduino/can-bus-sender/src",
+                "/Users/ruipedropires/SEA:ME/Team02-Course/MicroControllers/speed-sensor-arduino/can-bus-sender/.pio/libdeps/uno/CAN_BUS_Shield/src",
+                "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/cores/arduino",
+                "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/variants/standard",
+                "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "/Users/ruipedropires/SEA:ME/Team02-Course/MicroControllers/speed-sensor-arduino/can-bus-sender/src",
+                    "/Users/ruipedropires/SEA:ME/Team02-Course/MicroControllers/speed-sensor-arduino/can-bus-sender/.pio/libdeps/uno/CAN_BUS_Shield/src",
+                    "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                    "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/cores/arduino",
+                    "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/variants/standard",
+                    "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                    "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                    "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                    "/Users/ruipedropires/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=60116",
+                "ARDUINO_AVR_UNO",
+                "F_CPU=16000000L",
+                "ARDUINO_ARCH_AVR",
+                "ARDUINO=10808",
+                "__AVR_ATmega328P__",
+                ""
+            ],
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++11",
+            "compilerPath": "/Users/ruipedropires/.platformio/packages/toolchain-atmelavr/bin/avr-gcc",
+            "compilerArgs": [
+                "-mmcu=atmega328p",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
