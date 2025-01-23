@@ -45,19 +45,16 @@ void sendCANMessage() {
   data[6] = 0 & 0xFF;
   data[7] = 0 & 0xFF;
 
-  // for (int i = 0; i < 8; i++)
-  // {
-  //   Serial.print(data[i]);
-  //   Serial.print(", ");
-  // }
-  // Serial.println("");
-
   CAN.sendMsgBuf(0x1, 0, 4, data);
 }
 
-void printBits(byte data) {
+void readBits(byte data) {
     for (int b = 7; b >= 0; b--) {
         Serial.print(bitRead(data, b));
+        if (bitRead(data, b) == 1)
+        {
+
+        }
     }
 }
 
@@ -65,7 +62,7 @@ void processCANMessage(unsigned long id, byte* data, byte length) {
     switch (id) {
         case 0x03:  // Lights message
             Serial.print("Lights bits: ");
-            printBits(data[0]);
+            readBits(data[0]);
             Serial.println();
             break;
     }
