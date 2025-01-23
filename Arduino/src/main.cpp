@@ -12,13 +12,14 @@ unsigned long rxId;
 
 
 const int sensorPin = 3;  
-const long interval = 100;  
+const long interval = 300;  
 
 const float wheelDiameter = 0.067; 
 float circumference = 3.14 * wheelDiameter;
+float alpha = 0.5; // Smoothing factor (0 < alpha <= 1)
+float smoothedSpeed = 0;
 
-
-const int pulsesPerRevolution = 25;
+const int pulsesPerRevolution = 10;
 unsigned long pulseCount = 0;
 
 void countPulse() {
@@ -27,6 +28,7 @@ void countPulse() {
 
 void sendCANMessage() {
   float rps = (float)pulseCount / pulsesPerRevolution / (interval / 1000.0);
+  smoothedSpeed = alpha * rps + (1 - alpha) * smoothedSpeed;
   float rpm = rps * 60; // Convert to RPM
   pulseCount = 0;
 
