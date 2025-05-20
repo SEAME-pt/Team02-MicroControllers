@@ -2,6 +2,11 @@ radio.on()
 radio.set_group(7)
 gate_open = False
 gate_open_time = 0
+
+#if you are setting this up in a new gate increase the id by 1
+#gate send format is G01  (01 is the id)
+#gate receive format is G01ON to open the gate on proximity using radio signal strength 
+
 gate_id = "01"
 
 # Initially closed
