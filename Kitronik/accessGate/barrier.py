@@ -14,9 +14,10 @@ basic.show_leds("""
     . # # # .
 """)
 
+
 def on_received_string(receivedString):
     global gate_open, gate_open_time
-    if receivedString == "G01ON":
+    if receivedString == "G" + gate_id + "ON":
         pins.servo_write_pin(AnalogPin.P0, 0)  # open
         gate_open = True
         gate_open_time = input.running_time()
@@ -33,7 +34,7 @@ radio.on_received_string(on_received_string)
 def on_forever():
     global gate_open, gate_open_time
     # Broadcast identity
-    radio.send_string("G01")
+    radio.send_string("G" + gate_id)
 
     # Auto-close after 5 seconds
     if gate_open and input.running_time() - gate_open_time > 2000:
@@ -47,6 +48,7 @@ def on_forever():
             # # # # #
             . # # # .
         """)
+
 
     basic.pause(5)
 
