@@ -12,6 +12,9 @@ This project simulates a basic **Smart City** setup using Micro:bit devices for 
 ---
 
 ## How It Works
+- The decision to use radio communication was made based on the current hardware capabilities. Since Micro:bit v1 only allows one Bluetooth connection pairing—and while active, that disables the radio—we opted for the RSSI implementation using one Micro:bit as the broadcasting antenna in the car.
+
+- In laboratory settings, implementing an identification protocol for enhanced security would introduce additional complexity and could increase detection discrepancies over short distances, particularly given that the antennas in use are not optimal.
 
 ### Car Micro:bit
 
@@ -23,9 +26,10 @@ This project simulates a basic **Smart City** setup using Micro:bit devices for 
 ### Lamp Micro:bit
 
 - Listens for `"on"` messages on **radio group 7**.
-- If the message is received with **RSSI > -45 dBm**, the lamp turns **on**.
+- If the message is received with **RSSI > -50 dBm**, the lamp turns **on**.
 - Lamp stays on for **2 seconds**, then turns off automatically.
-- Broadcasts its ID (e.g., `L01`) periodically to indicate it's active.
+- Broadcasts its ID (e.g., `L01`) periodically to indicate it's active. (deprecated)
+- THE Lamp has a luminosity sensor.
 
 ### Gate Micro:bit
 
@@ -84,13 +88,25 @@ This project simulates a basic **Smart City** setup using Micro:bit devices for 
 - **Gate Closed:** Standard door icon
 - **Gate Open:** Arrow pointing up (gate lifting)
 
+### Access Gate
+<img src="images/accessgate.jpg.webp" width="300" alt="Access Gate" />
+
+### Lamp
+<img src="images/lamp.webp" width="300" alt="Lamp" />
+
+### Micro:bit Legend
+<img src="images/mirobitlegend.png" width="300" alt="Micro:bit Legend" />
+
+### Micro:bit Setup
+<img src="images/microbitscheme.png" width="300" alt="Micro:bit Setup" />
+
 ---
 
 ## 🧪 Future Improvements
 
 - Add remote management or scheduling
 - Implement encryption or pairing for secure communication
-- Explore bluetooth 
+
 
 ---
 
