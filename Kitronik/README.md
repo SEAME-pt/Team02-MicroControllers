@@ -4,9 +4,9 @@ This project simulates a basic **Smart City** setup using Micro:bit devices for 
 
 ## 📁 Project Structure
 
-- `car_code.py` – Sends a broadcast signal (`"on"`) to nearby devices.
-- `lamps_code.py` – Turns on streetlamps when a car is nearby.
-- `gate_code.py` – Opens gates when a car approaches and closes them after a short delay.
+- `car.py` – Sends a broadcast signal (`"on"`) to nearby devices.
+- `lamps.py` – Turns on streetlamps when a car is nearby.
+- `barrier.py` – Opens gates when a car approaches and closes them after a short delay.
 - `hex/` – Precompiled `.hex` files for each device (optional).
 
 ---
@@ -21,7 +21,7 @@ This project simulates a basic **Smart City** setup using Micro:bit devices for 
 - Continuously sends the message `"on"` over the radio.
 - Devices listening on the same radio group will react if the signal is strong enough.
 - **Radio Group:** `7`
-- **Transmit Power:** `7` (maximum range)
+- **Transmit Power:** `7` (maximum strength, default comes as 6)
 
 ### Lamp Micro:bit
 
