@@ -95,10 +95,10 @@ This project simulates a basic **Smart City** setup using Micro:bit devices for 
 <img src="images/lamp.webp" width="300" alt="Lamp" />
 
 ### Micro:bit Legend
-<img src="images/mirobitlegend.png" width="300" alt="Micro:bit Legend" />
+<img src="images/mirobitlegend.png" width="600" alt="Micro:bit Legend" />
 
 ### Micro:bit Setup
-<img src="images/microbitscheme.png" width="500" alt="Micro:bit Setup" />
+<img src="images/microbitscheme.png" width="600" alt="Micro:bit Setup" />
 
 ---
 
