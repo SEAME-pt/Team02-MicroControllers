@@ -66,7 +66,7 @@ This project simulates a basic **Smart City** setup using Micro:bit devices for 
 ## ⚙️ Customization Tips
 
 - Change the **radio group** (`radio.set_group(7)`) if you want to run multiple setups independently.
-- Adjust the **RSSI threshold** (`rssi_thr = -45`) to control how close a car must be for a response.
+- Adjust the **RSSI threshold** (`rssi_thr = -45`) to control how close a car must be for a response 0 is the maximum strength of the radio signal and decreases with distance.
 - Use different **lamp IDs** (`lamp_id = "01"`) to identify each device in logs or future expansions.
 
 ---
