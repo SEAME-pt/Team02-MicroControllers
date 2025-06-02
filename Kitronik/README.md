@@ -40,6 +40,14 @@ This project simulates a basic **Smart City** setup using Micro:bit devices for 
   - Closes the gate again (servo to `90°`).
 - Visual icons show the current gate state on the LED display.
 
+### Gate Micro:bit
+
+- Also listens for `"on"` messages.
+- If the signal is strong enough:
+  - It changes the light to Green.
+  - While receiving signal green lamp stays on.
+  - When no signal for 5 seconds Green lamp turns off, yellow on for some seconds then changes to the RED until new signal detected.
+
 ---
 
 ## 💻 How to Upload the Code
@@ -90,6 +98,9 @@ This project simulates a basic **Smart City** setup using Micro:bit devices for 
 
 ### Access Gate
 <img src="images/accessgate.jpg.webp" width="300" alt="Access Gate" />
+
+### Stop:bit
+<img src="images/stop.jpg.webp" width="300" alt="StopBit" />
 
 ### Lamp
 <img src="images/lamp.webp" width="300" alt="Lamp" />
