@@ -1,26 +1,28 @@
 # Team02-MicroControllers
 
-This repository contains code and resources developed by Team 02 for microcontroller-based systems based intalled on the Jetson Car. The project includes both Arduino logic (written in C++) and micro:bit components.
+This repository contains code and resources developed by Team 02 for microcontroller-based systems intalled on the Jetson Car. 
+The project includes both Arduino logic (written in C++) and micro:bit components with working python code.
 
 ## Arduino Folder
 
-The `Arduino/` folder contains the C++ source code for microcontrollers using the PlatformIO environment. The main logic is located in `src/main.cpp`, and it's intended to:
+The `Arduino/` folder contains the C++ source code for microcontrollers using the PlatformIO environment along with testing code. The main logic is located in `src/main.cpp`:
 
 - Read sensor inputs
-- Control actuators such as LEDs, servos, or gates
+- Control of LED Car lights beams and blinkers.
+- Uses CAN-Bus comunication protocol.
 
-This part of the project handles the embedded logic that runs on Arduino-compatible boards.
+This part of the project handles the embedded logic that runs on Arduino boards.
 
 ---
 
 ## Kitronik Folder
 
-The `Kitronik/` folder includes Python scripts and HEX files for micro:bit devices that simulate or control different modules of an access control system:
+The `Kitronik/` folder includes Python scripts and HEX files for micro:bit devices that simulate or control different modules:
 
-- **accessGate**: Controls a gate barrier.
-- **lamp**: Controls or simulates a traffic lamp.
-- **car**: Sends signals to simulate a car approaching the system.
-- **stopBit**: Manages a stop gate logic.
+- **accessGate**: Controls a gate barrier checking car proximity.
+- **lamp**: Simulates a road lamp that turns on when a car is nearby.
+- **car**: Continuosly broadcasts a signal to simulate a car approaching the system units.
+- **stopBit**: Manages the traffic lights logic and comunication for intersections.
 
 Precompiled `.hex` files are included for direct flashing to micro:bit devices, and images help illustrate how the system is wired and connected.
 
