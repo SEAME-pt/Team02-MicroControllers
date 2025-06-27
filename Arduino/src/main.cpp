@@ -13,6 +13,7 @@ unsigned long rxId;
 const int sensorPin = 3;
 const long interval = 300;  // ms
 
+
 const float wheelDiameter = 0.067;
 const float circumference = 3.14 * wheelDiameter;
 const int pulsesPerRevolution = 10;
@@ -86,9 +87,26 @@ void blinkRight() {
   }
 }
 
+void printBits(byte data) {
+		for (int b = 7; b >= 0; b--) {
+				Serial.print(bitRead(data, b));
+		}
+    Serial.println();
+
+}
+
 void processCANMessage(unsigned long id, byte* data, byte length) {
   if (length < 1) return;
   bool state = (data[0] == 1);
+
+  for(int i = 0; i < length; i++) {
+    printBits(data[i]);
+  }
+  Serial.println();
+  Serial.print("ID:");
+  Serial.print(id);
+  Serial.println();
+
 
   switch (id) {
     case 0x700: // Direction Indicator Left
@@ -118,6 +136,8 @@ void processCANMessage(unsigned long id, byte* data, byte length) {
       break;
   }
 }
+
+
 
 void checkCAN() {
   if (CAN.checkReceive() == CAN_MSGAVAIL) {
