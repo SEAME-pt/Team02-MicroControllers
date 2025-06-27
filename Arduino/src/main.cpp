@@ -13,11 +13,11 @@ unsigned long rxId;
 
 
 const int sensorPin = 3;  
-const long interval = 10;  
+const long interval = 25;  
 
 const float wheelDiameter = 0.067; 
 float circumference = 3.14 * wheelDiameter;
-float alpha = 0.5; // Smoothing factor (0 < alpha <= 1)
+float alpha = 0.1; // Smoothing factor (0 < alpha <= 1) - Lower = more smoothing
 //float smoothedSpeed = 0;
 
 const int pulsesPerRevolution = 10;
@@ -47,31 +47,109 @@ bool frontfogLight = false;
 bool buzz = false;
 
 // Add these global variables
-unsigned long lastPulseTime = 0;
-unsigned long currentPulseTime = 0;
+volatile unsigned long lastPulseTime = 0;
 volatile unsigned long pulsePeriod = 0;
 volatile boolean newPulseDetected = false;
+volatile int validPulseCount = 0;
 float rpm = 0;
 
+// Moving average filter for additional smoothing
+const int FILTER_SIZE = 5;
+float rpmHistory[FILTER_SIZE];
+int filterIndex = 0;
+bool filterFilled = false;
+
+// Debouncing and filtering constants
+const unsigned long MIN_PULSE_PERIOD = 5000; // Minimum 5ms between pulses (max 600 RPM)
+const unsigned long MAX_PULSE_PERIOD = 1000000; // Maximum 1 second between pulses (min 3 RPM)
+const unsigned long DEBOUNCE_TIME = 2000; // 2ms debounce time
+
 void countPulse() {
-    currentPulseTime = micros();
-    pulsePeriod = currentPulseTime - lastPulseTime;
-	rpm = 60000000.0 / (pulsePeriod * pulsesPerRevolution);
-    lastPulseTime = currentPulseTime;
-	pulseCount++;
+    unsigned long currentTime = micros();
+    unsigned long timeSinceLastPulse = currentTime - lastPulseTime;
+    
+    // Debounce: ignore pulses that are too close together
+    if (timeSinceLastPulse < DEBOUNCE_TIME) {
+        return;
+    }
+    
+
+    if (timeSinceLastPulse >= MIN_PULSE_PERIOD && timeSinceLastPulse <= MAX_PULSE_PERIOD) {
+        pulsePeriod = timeSinceLastPulse;
+        newPulseDetected = true;
+        validPulseCount++;
+    }
+    
+    lastPulseTime = currentTime;
+    pulseCount++;
 }
 
+float getSmoothedRPM(float newRpm) {
+    // Add new value to circular buffer
+    rpmHistory[filterIndex] = newRpm;
+    filterIndex = (filterIndex + 1) % FILTER_SIZE;
+    
+    if (!filterFilled && filterIndex == 0) {
+        filterFilled = true;
+    }
+    
+    // Calculate average
+    float sum = 0;
+    int count = filterFilled ? FILTER_SIZE : filterIndex;
+    
+    for (int i = 0; i < count; i++) {
+        sum += rpmHistory[i];
+    }
+    
+    return sum / count;
+}
 
 void sendCANMessage() {
+    // Calculate RPM only if we have a new valid pulse
+    if (newPulseDetected && pulsePeriod > 0) {
+        // Disable interrupts briefly to safely read volatile variables
+        noInterrupts();
+        unsigned long currentPulsePeriod = pulsePeriod;
+        newPulseDetected = false;
+        interrupts();
+        
+        // Calculate instantaneous RPM
+        float instantRpm = 60000000.0 / (currentPulsePeriod * pulsesPerRevolution);
+        
+        // Apply multiple levels of filtering
+        // 1. Exponential moving average
+        if (rpm == 0) {
+            rpm = instantRpm; // First reading
+        } else {
+            rpm = alpha * instantRpm + (1.0 - alpha) * rpm;
+        }
+        
+        // 2. Moving average filter for additional stability
+        rpm = getSmoothedRPM(rpm);
+    }
+    
+    // Check for timeout (no pulse for too long = stopped)
+    if (micros() - lastPulseTime > 300000) { // 0.3 second timeout
+        rpm = 0;
+        validPulseCount = 0;
+        // Reset filters
+        filterIndex = 0;
+        filterFilled = false;
+    }
+    
+    // Ensure RPM is within reasonable bounds
+    if (rpm < 0) rpm = 0;
+    if (rpm > 600) rpm = 0; // Sanity check for your test bench
 
     Serial.print("RPM: ");
-    Serial.println(rpm);
+    Serial.print(rpm, 1); // Print with 1 decimal place
+	
+    int speed = (int)rpm;
+	Serial.print(" Speed: ");
+	Serial.print(speed);
+	Serial.print(")");
+    Serial.println();
 
-
-	if (micros() - lastPulseTime > 100000) {
-        rpm = 0;
-    }
-	int speed = (int) rpm;
 
 	byte data[8];
 	data[0] = (speed >> 24) & 0xFF; // Highest byte
@@ -83,7 +161,7 @@ void sendCANMessage() {
 	data[6] = 0 & 0xFF;
 	data[7] = 0 & 0xFF;
 
-	CAN.sendMsgBuf(0x1, 0, 4, data);
+	CAN.sendMsgBuf(0x1, 0, 8, data);
 }
 
 void printBits(byte data) {
@@ -218,6 +296,19 @@ void setup()
 	CAN.setMode(MCP_NORMAL);
 
 	pinMode(sensorPin, INPUT);
+
+    // Initialize timing variables
+    lastPulseTime = micros();
+    rpm = 0;
+    validPulseCount = 0;
+    newPulseDetected = false;
+    
+    // Initialize filters
+    filterIndex = 0;
+    filterFilled = false;
+    for (int i = 0; i < FILTER_SIZE; i++) {
+        rpmHistory[i] = 0;
+    }
 
 	attachInterrupt(digitalPinToInterrupt(sensorPin), countPulse, FALLING); 
 	timer.setInterval(interval, sendCANMessage);
