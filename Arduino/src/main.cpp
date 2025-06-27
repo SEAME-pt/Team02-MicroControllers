@@ -3,6 +3,10 @@
 #include <mcp_can.h>
 #include <Wire.h>
 
+//leftblinker 4 
+//rightblinker 8 
+// rearfog 7 
+// beam 5  / 6 
 MCP_CAN CAN(10);
 SimpleTimer timer;
 
@@ -24,30 +28,19 @@ int pulseCount = 0;
 unsigned long previousMillisLeft = 0;
 unsigned long previousMillisRight = 0;
 
-const int leftBlinkerPin = 5;
-const int rightBlinkerPin = 6;
-const int BeamPin = 11;
-const int rearLightPin = 7;
-const int rearFogLightPin = 8;
-const int frontFogLightPin = 4;
-const int parkingLightPin = 15;
-const int buzzer_pin = 12;
-
-const int pins[8] = {
-  leftBlinkerPin, rightBlinkerPin, rearLightPin,
-  rearFogLightPin, frontFogLightPin, BeamPin,
-  parkingLightPin, buzzer_pin
-};
+const int leftBlinkerPin = 4;
+const int rightBlinkerPin = 8;
+const int rightBeamPin = 5;
+const int leftBeamPin = 6;
+const int rearFogLightPin = 7;
 
 // Light states
 bool leftBlinker = false;
 bool rightBlinker = false;
 bool highBeam = false;
 bool lowBeam = false;
-bool rearLights = false;
 bool rearfogLight = false;
-bool frontfogLight = false;
-bool buzz = false;
+bool parkingLight = false;
 
 // Add these global variables
 volatile unsigned long lastPulseTime = 0;
@@ -148,9 +141,9 @@ void sendCANMessage() {
     Serial.print(rpm, 1); // Print with 1 decimal place
 	
     int speed = (int)rpm;
-	Serial.print(" Speed: ");
-	Serial.print(speed);
-	Serial.print(")");
+    Serial.print(" Speed: ");
+    Serial.print(speed);
+    Serial.print(")");
     Serial.println();
 
 
@@ -214,55 +207,48 @@ void processCANMessage(unsigned long id, byte* data, byte length) {
     case 0x703: // Beam High
       highBeam = state;
       break;
-    case 0x704: // Fog Front
-      frontfogLight = state;
-      break;
     case 0x705: // Fog Rear
       rearfogLight = state;
       break;
-    case 0x706: // Hazard
-      leftBlinker = state;
-      rightBlinker = state;
-      break;
     case 0x707: // Parking Light
-      rearLights = state;
+      parkingLight = state;
       break;
   }
 }
-
-
 
 void checkCAN() {
   if (CAN.checkReceive() == CAN_MSGAVAIL) {
     if (CAN.readMsgBuf(&rxId, &len, buf) == CAN_OK) {
       processCANMessage(rxId, buf, len);
+      sleep(10);
     }
   }
 }
 
 void checkLoop() {
-  // Blinkers
+
   if (leftBlinker) blinkLeft();
   else digitalWrite(leftBlinkerPin, LOW);
 
   if (rightBlinker) blinkRight();
   else digitalWrite(rightBlinkerPin, LOW);
 
-  // Rear fog light
   digitalWrite(rearFogLightPin, rearfogLight ? HIGH : LOW);
 
-  // Front fog light
-  digitalWrite(frontFogLightPin, frontfogLight ? HIGH : LOW);
-
-  // Rear lights (Parking lights)
-  digitalWrite(rearLightPin, rearLights ? HIGH : LOW);
-  digitalWrite(parkingLightPin, rearLights ? HIGH : LOW);
-
-  // Beams (for simplicity, HIGH if either is ON)
-  digitalWrite(BeamPin, (lowBeam || highBeam) ? HIGH : LOW);
-
-  // Buzzer
-  digitalWrite(buzzer_pin, buzz ? HIGH : LOW);
+  if(parkingLight) {
+    analogWrite(leftBeamPin, 64);
+    analogWrite(rightBeamPin, 64); 
+  } else if(highBeam) {
+    analogWrite(leftBeamPin, 255);
+    analogWrite(rightBeamPin, 255);
+  } else if (lowBeam) {
+    analogWrite(leftBeamPin, 128);
+    analogWrite(rightBeamPin, 128);
+  }
+  else {
+    analogWrite(leftBeamPin, 0);
+    analogWrite(rightBeamPin, 0);
+  }
 }
 
 void setup()
@@ -296,12 +282,13 @@ void setup()
 	attachInterrupt(digitalPinToInterrupt(sensorPin), countPulse, FALLING); 
 	timer.setInterval(interval, sendCANMessage);
 
-  for (int i = 0; i < 8; i++) {
-    pinMode(pins[i], OUTPUT);
-  }
+  pinMode(leftBlinkerPin, OUTPUT);
+  pinMode(rightBlinkerPin, OUTPUT);
+  pinMode(leftBeamPin, OUTPUT);
+  pinMode(rightBeamPin, OUTPUT);
+  pinMode(rearFogLightPin, OUTPUT);
+
 }
-
-
 
 void loop()
 {
@@ -309,9 +296,4 @@ void loop()
 	checkCAN();
 	checkLoop();
 
-}
-void loop() {
-  timer.run();
-  checkCAN();
-  checkLoop();
 }
