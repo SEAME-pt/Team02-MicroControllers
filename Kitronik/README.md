@@ -40,13 +40,32 @@ This project simulates a basic **Smart City** setup using Micro:bit devices for 
   - Closes the gate again (servo to `90°`).
 - Visual icons show the current gate state on the LED display.
 
-### Gate Micro:bit
+----
 
-- Also listens for `"on"` messages.
-- If the signal is strong enough:
-  - It changes the light to Green.
-  - While receiving signal green lamp stays on.
-  - When no signal for 5 seconds Green lamp turns off, yellow on for some seconds then changes to the RED until new signal detected.
+# StopBit Intersections
+## Decentralized Traffic Light System
+
+Implements a decentralized traffic light system using Micro:bit devices and the Kitronik STOP:bit module. Traffic lights operate in clusters and coordinate turns via radio communication, ensuring, responsive traffic control with car detection through RSSI.
+
+---
+
+## Features
+
+- Decentralized turn based control using token-passing protocol.
+- Car detection via RSSI on unit listening.
+- Auto/Manual modes.
+- Manual triggers microbit to pass the token.
+- Failsafe if token gets stuck.
+
+---
+
+## System Overview
+
+- Each traffic light has a unique ID (e.g., `C1A`, `C1B`, `C1C`).
+- A token is passed among them in sequence.
+- Only the unit with the token can turn the light green.
+- The green light activates only if a car is detected nearby (via strong RSSI).
+- Fast listening Turns allow for all the units to cicle in a short period.
 
 ---
 
@@ -117,7 +136,6 @@ This project simulates a basic **Smart City** setup using Micro:bit devices for 
 
 - Add remote management or scheduling
 - Implement encryption or pairing for secure communication
-
 
 ---
 
