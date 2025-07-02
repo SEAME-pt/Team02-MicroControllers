@@ -17,7 +17,7 @@ const long interval = 25;
 
 const float wheelDiameter = 0.067; 
 float circumference = 3.14 * wheelDiameter;
-float alpha = 0.1; // Smoothing factor (0 < alpha <= 1) - Lower = more smoothing
+float alpha = 0.15; // Smoothing factor (0 < alpha <= 1) - Lower = more smoothing
 //float smoothedSpeed = 0;
 
 const int pulsesPerRevolution = 10;
@@ -60,9 +60,12 @@ int filterIndex = 0;
 bool filterFilled = false;
 
 // Debouncing and filtering constants
-const unsigned long MIN_PULSE_PERIOD = 5000; // Minimum 5ms between pulses (max 600 RPM)
-const unsigned long MAX_PULSE_PERIOD = 1000000; // Maximum 1 second between pulses (min 3 RPM)
-const unsigned long DEBOUNCE_TIME = 2000; // 2ms debounce time
+const unsigned long MIN_PULSE_PERIOD = 5000; //  6ms - for max 1000 RPM
+const unsigned long MAX_PULSE_PERIOD = 1000000; // Maximum 2 seconds between pulses (min 3 RPM)
+const unsigned long DEBOUNCE_TIME = 5000; // 5ms debounce time
+
+float previousRpm = 0;
+const float MAX_RPM_CHANGE_PER_CYCLE = 5.0; 
 
 void countPulse() {
     unsigned long currentTime = micros();
@@ -85,6 +88,23 @@ void countPulse() {
 }
 
 float getSmoothedRPM(float newRpm) {
+    // Outlier rejection: if new reading is too different from current average, limit the change
+    if (filterFilled) {
+        float currentAvg = 0;
+        for (int i = 0; i < FILTER_SIZE; i++) {
+            currentAvg += rpmHistory[i];
+        }
+        currentAvg /= FILTER_SIZE;
+        
+        // If new reading differs by more than 20% from average, limit it
+        float maxChange = currentAvg * 0.1; // 20% max change
+        if (newRpm > currentAvg + maxChange) {
+            newRpm = currentAvg + maxChange;
+        } else if (newRpm < currentAvg - maxChange && currentAvg > 10) { // Don't limit when stopping
+            newRpm = currentAvg - maxChange;
+        }
+    }
+    
     // Add new value to circular buffer
     rpmHistory[filterIndex] = newRpm;
     filterIndex = (filterIndex + 1) % FILTER_SIZE;
@@ -118,29 +138,43 @@ void sendCANMessage() {
         
         // Apply multiple levels of filtering
         // 1. Exponential moving average
-        if (rpm == 0) {
-            rpm = instantRpm; // First reading
-        } else {
-            rpm = alpha * instantRpm + (1.0 - alpha) * rpm;
-        }
+        // if (rpm == 0) {
+        //     rpm = instantRpm; // First reading
+        // } else {
+        //     rpm = alpha * instantRpm + (1.0 - alpha) * rpm;
+        // }
         
+		if (abs(rpm - instantRpm) > 300)
+			rpm = rpm;
+		else
+			rpm = instantRpm;
+
         // 2. Moving average filter for additional stability
         rpm = getSmoothedRPM(rpm);
+	
+
+		// // 3. Rate limiting - prevent sudden changes
+        // if (previousRpm > 0) {
+        //     float rpmChange = rpm - previousRpm;
+        //     if (rpmChange > MAX_RPM_CHANGE_PER_CYCLE) {
+        //         rpm = previousRpm + MAX_RPM_CHANGE_PER_CYCLE;
+        //     } else if (rpmChange < -MAX_RPM_CHANGE_PER_CYCLE) {
+        //         rpm = previousRpm - MAX_RPM_CHANGE_PER_CYCLE;
+        //     }
+        // }
+        // previousRpm = rpm;
     }
     
     // Check for timeout (no pulse for too long = stopped)
-    if (micros() - lastPulseTime > 300000) { // 0.3 second timeout
+    if (micros() - lastPulseTime > 300000) { // 0.5 second timeout
         rpm = 0;
+		previousRpm = 0; 
         validPulseCount = 0;
         // Reset filters
         filterIndex = 0;
         filterFilled = false;
     }
     
-    // Ensure RPM is within reasonable bounds
-    if (rpm < 0) rpm = 0;
-    if (rpm > 600) rpm = 0; // Sanity check for your test bench
-
     Serial.print("RPM: ");
     Serial.print(rpm, 1); // Print with 1 decimal place
 	
@@ -310,7 +344,7 @@ void setup()
         rpmHistory[i] = 0;
     }
 
-	attachInterrupt(digitalPinToInterrupt(sensorPin), countPulse, FALLING); 
+	attachInterrupt(digitalPinToInterrupt(sensorPin), countPulse, RISING); 
 	timer.setInterval(interval, sendCANMessage);
 
 	for (int i = 0; i < 8; i++) {
