@@ -13,7 +13,7 @@ unsigned long rxId;
 
 
 const int sensorPin = 3;  
-const long interval = 25;  
+const long interval = 15;  
 
 const float wheelDiameter = 0.067; 
 float circumference = 3.14 * wheelDiameter;
@@ -138,19 +138,19 @@ void sendCANMessage() {
         
         // Apply multiple levels of filtering
         // 1. Exponential moving average
-        // if (rpm == 0) {
-        //     rpm = instantRpm; // First reading
-        // } else {
-        //     rpm = alpha * instantRpm + (1.0 - alpha) * rpm;
-        // }
+        if (rpm == 0) {
+            rpm = instantRpm; // First reading
+        } else {
+            rpm = alpha * instantRpm + (1.0 - alpha) * rpm;
+        }
         
-		if (abs(rpm - instantRpm) > 300)
-			rpm = rpm;
-		else
-			rpm = instantRpm;
+		// if (abs(rpm - instantRpm) > 300)
+		// 	rpm = rpm;
+		// else
+		// rpm = instantRpm;
 
         // 2. Moving average filter for additional stability
-        rpm = getSmoothedRPM(rpm);
+        // rpm = getSmoothedRPM(rpm);
 	
 
 		// // 3. Rate limiting - prevent sudden changes
@@ -166,7 +166,7 @@ void sendCANMessage() {
     }
     
     // Check for timeout (no pulse for too long = stopped)
-    if (micros() - lastPulseTime > 300000) { // 0.5 second timeout
+    if (micros() - lastPulseTime > 300000) { // 0.1 second timeout
         rpm = 0;
 		previousRpm = 0; 
         validPulseCount = 0;
